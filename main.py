@@ -3,7 +3,7 @@ from alpaca.data.requests import StockBarsRequest
 from alpaca.trading.client import TradingClient
 from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 from alpaca.trading.requests import OrderRequest
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 
 
@@ -18,12 +18,14 @@ symbols = ["F", "GE", "NOK"]
 
 for symbol in symbols:
 
+    end_date = datetime.today()
+    start_date = end_date - timedelta(days=365)
 
     bar_request = StockBarsRequest(
         symbol_or_symbols=symbol, 
         timeframe=TimeFrame(1, TimeFrameUnit('Day')), 
-        start=datetime(2022, 11, 1), 
-        end=datetime(2023, 10, 9), 
+        start=start_date, 
+        end=end_date, 
         limit=200)
     
     bars = client.get_stock_bars(bar_request)
