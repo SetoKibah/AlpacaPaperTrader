@@ -14,7 +14,7 @@ BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
 
-symbols = ["F", "GE", "NOK"]
+symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL"]
 
 for symbol in symbols:
 
@@ -47,7 +47,7 @@ for symbol in symbols:
 
         try:
             print(f'Getting {symbol} position...')
-            position = trading_client.get_position(symbol)
+            position = trading_client.get_open_position(symbol)
             print(f'Position: {position}')
         except:
             print(f'No position for {symbol}.')
@@ -86,5 +86,4 @@ for symbol in symbols:
 account = trading_client.get_account()
 for property_name, value in account.__dict__.items():
     print(f"\"{property_name}\": {value}")
-
 
