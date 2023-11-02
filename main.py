@@ -39,22 +39,25 @@ for symbol in symbols:
     long_window = 200
     #print(f'Confirming data point length({len(bars[symbol])}) vs long window({long_window})')
     if len(bars[symbol]) >= long_window:  # Check to ensure we have enough data points
-        print('Data points confirmed...')
+        #print('Data points confirmed...')
         short_moving_average = sum([bar.open for bar in bars[symbol][-short_window:]]) / short_window
         long_moving_average = sum([bar.open for bar in bars[symbol][-long_window:]]) / long_window
 
-        print(f'Short Average: {short_moving_average}\nLong Average: {long_moving_average}')
+        
 
         try:
             print(f'Getting {symbol} position...')
             position = trading_client.get_open_position(symbol)
-            print(f'Position: {position}')
+            print(f'Position {symbol} available.')
         except:
             print(f'No position for {symbol}.')
             position = None
 
+        print(f'Short Average: {short_moving_average}\nLong Average: {long_moving_average}')
+
         if short_moving_average > long_moving_average and not position:
             # Golden Cross - Buy Signal
+            print('Buy Signal...')
 
             # Generate order request object
             order = OrderRequest(
@@ -70,6 +73,7 @@ for symbol in symbols:
 
         elif short_moving_average < long_moving_average and position:
             # Death Cross - Sell Signal
+            print('Sell Signal...')
 
             # Generate order request object
             order = OrderRequest(
@@ -82,6 +86,10 @@ for symbol in symbols:
             
             trading_client.submit_order(order)
             print(f"Death Cross detected for {symbol}. Selling {position.qty} shares.")
+        
+        else:
+            print('No Signals Detected...')
+        print('**************************************')
 
 account = trading_client.get_account()
 for property_name, value in account.__dict__.items():
