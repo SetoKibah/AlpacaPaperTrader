@@ -13,10 +13,8 @@ BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
-
-
-
 account = trading_client.get_account()
+
 #for property_name, value in account.__dict__.items():
 #    print(f"\"{property_name}\": {value}")
 #sleep(600)
@@ -108,5 +106,3 @@ for symbol in symbols:
         else:
             print('No Signals Detected...')
         print('**************************************')
-
-
