@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 from time import sleep
 
 
-API_KEY = 'PKYM44C7PI5RTRX7LFSG'
-API_SECRET = 'cXy7euUOQ1jfXQN8kWUthG4EIHN3uv8CzCPaqngT'
+API_KEY = 'PKSOVG2YEBLVPKNA8K5U'
+API_SECRET = '09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71'
 BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
@@ -62,7 +62,7 @@ for symbol in symbols:
             # Generate order request object
             order = OrderRequest(
                 symbol=symbol,
-                qty=10,
+                qty=1,
                 side='buy',
                 type='market',
                 time_in_force='gtc'
