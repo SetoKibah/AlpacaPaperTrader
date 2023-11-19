@@ -7,13 +7,8 @@ from datetime import datetime, timedelta
 from time import sleep
 
 
-<<<<<<< HEAD
-API_KEY = 'PKZI3UR332QYPPA9ZXU6'
-API_SECRET = 'zOr6vlcRsD0Yf136wft3pOaLwYu2FHPtdKW7XoM0'
-=======
 API_KEY = 'PKSOVG2YEBLVPKNA8K5U'
 API_SECRET = '09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71'
->>>>>>> 5648265368bd1c5f826cfe8be51be9bd0d8f5318
 BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
@@ -74,17 +69,6 @@ for symbol in symbols:
             # Golden Cross - Buy Signal
             print('Buy Signal...')
 
-<<<<<<< HEAD
-
-            # Generate order request object
-            order = OrderRequest(
-                symbol=symbol,
-                qty=1,
-                side='buy',
-                type='market',
-                time_in_force='gtc'
-            )
-=======
             # Get current buying power
             current_buying_power = account.__dict__['buying_power']
             print(f'Current Buying Power: {current_buying_power}')
@@ -108,7 +92,6 @@ for symbol in symbols:
             
             else:
                 print(f'Insufficient buying power, we have {current_buying_power} trying to buy {symbol} at {open_price}')
->>>>>>> 5648265368bd1c5f826cfe8be51be9bd0d8f5318
 
 
         elif short_moving_average < long_moving_average and position:
