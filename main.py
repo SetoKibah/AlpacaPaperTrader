@@ -7,12 +7,19 @@ from datetime import datetime, timedelta
 from time import sleep
 
 
-API_KEY = 'PKYM44C7PI5RTRX7LFSG'
-API_SECRET = 'cXy7euUOQ1jfXQN8kWUthG4EIHN3uv8CzCPaqngT'
+API_KEY = 'PKZI3UR332QYPPA9ZXU6'
+API_SECRET = 'zOr6vlcRsD0Yf136wft3pOaLwYu2FHPtdKW7XoM0'
 BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
+
+account = trading_client.get_account()
+
+for property_name, value in account.__dict__.items():
+    print(f"\"{property_name}\": {value}")
+
+sleep(300)
 
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL"]
 
@@ -43,8 +50,6 @@ for symbol in symbols:
         short_moving_average = sum([bar.open for bar in bars[symbol][-short_window:]]) / short_window
         long_moving_average = sum([bar.open for bar in bars[symbol][-long_window:]]) / long_window
 
-        
-
         try:
             print(f'Getting {symbol} position...')
             position = trading_client.get_open_position(symbol)
@@ -59,10 +64,11 @@ for symbol in symbols:
             # Golden Cross - Buy Signal
             print('Buy Signal...')
 
+
             # Generate order request object
             order = OrderRequest(
                 symbol=symbol,
-                qty=10,
+                qty=1,
                 side='buy',
                 type='market',
                 time_in_force='gtc'
