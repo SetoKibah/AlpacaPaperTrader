@@ -7,12 +7,22 @@ from datetime import datetime, timedelta
 from time import sleep
 
 
+<<<<<<< HEAD
 API_KEY = 'PKZI3UR332QYPPA9ZXU6'
 API_SECRET = 'zOr6vlcRsD0Yf136wft3pOaLwYu2FHPtdKW7XoM0'
+=======
+API_KEY = 'PKSOVG2YEBLVPKNA8K5U'
+API_SECRET = '09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71'
+>>>>>>> 5648265368bd1c5f826cfe8be51be9bd0d8f5318
 BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
+account = trading_client.get_account()
+
+#for property_name, value in account.__dict__.items():
+#    print(f"\"{property_name}\": {value}")
+#sleep(600)
 
 account = trading_client.get_account()
 
@@ -26,14 +36,14 @@ symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO"
 for symbol in symbols:
 
     end_date = datetime.today()
-    start_date = end_date - timedelta(days=365)
+    start_date = end_date - timedelta(days=365)    
 
     bar_request = StockBarsRequest(
         symbol_or_symbols=symbol, 
         timeframe=TimeFrame(1, TimeFrameUnit('Day')), 
         start=start_date, 
         end=end_date, 
-        limit=200)
+        limit=365)
     
     bars = client.get_stock_bars(bar_request)
     """
@@ -64,6 +74,7 @@ for symbol in symbols:
             # Golden Cross - Buy Signal
             print('Buy Signal...')
 
+<<<<<<< HEAD
 
             # Generate order request object
             order = OrderRequest(
@@ -73,9 +84,32 @@ for symbol in symbols:
                 type='market',
                 time_in_force='gtc'
             )
+=======
+            # Get current buying power
+            current_buying_power = account.__dict__['buying_power']
+            print(f'Current Buying Power: {current_buying_power}')
+            # Check symbol price
+            #print(bars[symbol][-1].timestamp)
+            open_price = bars[symbol][-1].open
+            #print(f'{symbol} open price {open_price}')
+            
+            if open_price < current_buying_power:
+                # Generate order request object
+                order = OrderRequest(
+                    symbol=symbol,
+                    qty=1,
+                    side='buy',
+                    type='market',
+                    time_in_force='gtc'
+                )
 
-            trading_client.submit_order(order)
-            print(f"Golden Cross detected for {symbol}. Buying 10 shares.")
+                trading_client.submit_order(order)
+                print(f"Golden Cross detected for {symbol}. Buying 1 share.")
+            
+            else:
+                print(f'Insufficient buying power, we have {current_buying_power} trying to buy {symbol} at {open_price}')
+>>>>>>> 5648265368bd1c5f826cfe8be51be9bd0d8f5318
+
 
         elif short_moving_average < long_moving_average and position:
             # Death Cross - Sell Signal
@@ -96,8 +130,3 @@ for symbol in symbols:
         else:
             print('No Signals Detected...')
         print('**************************************')
-
-account = trading_client.get_account()
-for property_name, value in account.__dict__.items():
-    print(f"\"{property_name}\": {value}")
-
