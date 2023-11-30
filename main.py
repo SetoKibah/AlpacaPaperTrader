@@ -17,14 +17,7 @@ account = trading_client.get_account()
 
 #for property_name, value in account.__dict__.items():
 #    print(f"\"{property_name}\": {value}")
-#sleep(600)
-
-account = trading_client.get_account()
-
-for property_name, value in account.__dict__.items():
-    print(f"\"{property_name}\": {value}")
-
-sleep(300)
+#sleep(300)
 
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL"]
 
@@ -70,7 +63,7 @@ for symbol in symbols:
             print('Buy Signal...')
 
             # Get current buying power
-            current_buying_power = account.__dict__['buying_power']
+            current_buying_power = float(account.__dict__['buying_power'])
             print(f'Current Buying Power: {current_buying_power}')
             # Check symbol price
             #print(bars[symbol][-1].timestamp)
@@ -113,3 +106,7 @@ for symbol in symbols:
         else:
             print('No Signals Detected...')
         print('**************************************')
+        sleep(5)
+
+with open('log.txt', 'a') as f:
+    f.write(f'Paper Trader ran at {datetime.now()}.')
