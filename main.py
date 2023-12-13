@@ -19,7 +19,19 @@ account = trading_client.get_account()
 #    print(f"\"{property_name}\": {value}")
 #sleep(300)
 
+
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL"]
+
+def moving_average(lst, window_size):
+    moving_averages = []
+    window_sum = sum(lst[:window_size])
+    moving_averages.append(window_sum / window_size)
+
+    for i in range(window_size, len(lst)):
+        window_sum = window_sum - lst[i - window_size] + lst[i]
+        moving_averages.append(window_sum / window_size)
+
+    return moving_averages
 
 for symbol in symbols:
 
@@ -45,8 +57,8 @@ for symbol in symbols:
     #print(f'Confirming data point length({len(bars[symbol])}) vs long window({long_window})')
     if len(bars[symbol]) >= long_window:  # Check to ensure we have enough data points
         #print('Data points confirmed...')
-        short_moving_average = sum([bar.open for bar in bars[symbol][-short_window:]]) / short_window
-        long_moving_average = sum([bar.open for bar in bars[symbol][-long_window:]]) / long_window
+        short_moving_average = moving_average([bar.open for bar in bars[symbol]], short_window)[-1]
+        long_moving_average = moving_average([bar.open for bar in bars[symbol]], long_window)[-1]
 
         try:
             print(f'Getting {symbol} position...')
