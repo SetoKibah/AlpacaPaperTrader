@@ -88,7 +88,7 @@ for symbol in symbols:
 
         print(f'Short Average: {short_moving_average}\nLong Average: {long_moving_average}')
         
-        if percent_return < -5 and position:
+        if percent_return < -.05 and position:
             # Stop Loss - Sell Signal
             print('Stop Loss...')
 
@@ -104,7 +104,7 @@ for symbol in symbols:
             trading_client.submit_order(order)
             print(f"Stop Loss detected for {symbol}. Selling {position.qty} shares.")
         
-        elif percent_return > 10 and position:
+        elif percent_return > .05 and position:
             # Take Profit - Sell Signal
             print('Take Profit...')
 
@@ -130,12 +130,20 @@ for symbol in symbols:
             # Check symbol price
             open_price = bars[symbol][-1].open
             
-            # Check if we have enough buying power, and buy 1 share
+            # Check if we have enough buying power, and buy up to 5 shares
             if open_price < current_buying_power:
                 # Generate order request object
+                # Taking current buying power and dividing by open price to get number of shares
+                quantity = int(current_buying_power / open_price)
+                if quantity > 5:
+                    print(f'Quantiy is {quantity}, reducing to 5 shares.')
+                    quantity = 5
+                print(f'Buying {quantity} shares of {symbol} at {open_price}')
+                
+
                 order = OrderRequest(
                     symbol=symbol,
-                    qty=1,
+                    qty=quantity,
                     side='buy',
                     type='market',
                     time_in_force='gtc'
