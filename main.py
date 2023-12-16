@@ -22,7 +22,10 @@ account = trading_client.get_account()
 
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL",
            "KR", "BAC","SIFY", "FPAY", "CAN", "GSAT", "LUMN", "API", "IHRT", "MVIS", "VMEO", "KODK",
-           "UIS", "YEXT", "PTON", "T", "NIO", "TSLA", "AMZN", "MSFT", "META", "GOOG", "GOOGL"]
+           "UIS", "YEXT", "PTON", "T", "NIO", "TSLA", "AMZN", "MSFT", "META", "GOOG", "GOOGL", "CLNN",
+           "OMQS", "SDPI", "CLRO", "PRPL", "CODX", "PFIE", "COOK", "SPWH", "SERA", "CLAR", "LFVN", "CRCT",
+           "BRDG", "HCAT", "SNFCA", "RXRX", "DOMO", "CLSK", "TRAK", "NATR", "NUS", "MYGN", "VREX", "BYON",
+           "PRG", "FC", "ZION", "SKYW", "USNA", "HQY", "MMSI", "UTMD", "IIPR", "EXR"]
 
 def moving_average(lst, window_size):
     moving_averages = []
@@ -35,7 +38,27 @@ def moving_average(lst, window_size):
 
     return moving_averages
 
+def calculate_quantity(current_buying_power, open_price):
+    quantity = int(current_buying_power / open_price)
+    if quantity > 5:
+        print(f'Quantiy is {quantity}, reducing to 5 shares.')
+        quantity = 5
+    return quantity
+
+def create_buy_order(symbol, quantity):
+    return OrderRequest(
+        symbol=symbol,
+        qty=quantity,
+        side='buy',
+        type='market',
+        time_in_force='gtc'
+    )
+
 for symbol in symbols:
+
+    # Update account information
+    account = trading_client.get_account()
+    print(f"Current Buying Power: ${account.__dict__['buying_power']}")
 
     end_date = datetime.today()
     start_date = end_date - timedelta(days=365)    
@@ -127,6 +150,8 @@ for symbol in symbols:
             # Get current buying power
             current_buying_power = float(account.__dict__['buying_power'])
             print(f'Current Buying Power: {current_buying_power}')
+
+
             # Check symbol price
             open_price = bars[symbol][-1].open
             
@@ -134,24 +159,15 @@ for symbol in symbols:
             if open_price < current_buying_power:
                 # Generate order request object
                 # Taking current buying power and dividing by open price to get number of shares
-                quantity = int(current_buying_power / open_price)
-                if quantity > 5:
-                    print(f'Quantiy is {quantity}, reducing to 5 shares.')
-                    quantity = 5
+                quantity = calculate_quantity(current_buying_power, open_price)
                 print(f'Buying {quantity} shares of {symbol} at {open_price}')
-                
+                order = create_buy_order(symbol, quantity)
 
-                order = OrderRequest(
-                    symbol=symbol,
-                    qty=quantity,
-                    side='buy',
-                    type='market',
-                    time_in_force='gtc'
-                )
-
+                # Submit order
                 trading_client.submit_order(order)
                 print(f"Golden Cross detected for {symbol}. Buying 1 share.")
             
+            # If we don't have enough buying power, print a message
             else:
                 print(f'Insufficient buying power, we have {current_buying_power} trying to buy {symbol} at {open_price}')
 
@@ -175,7 +191,7 @@ for symbol in symbols:
         else:
             print('No Action...')
         print('**************************************\n')
-        sleep(5)
+        sleep(1)
 
 with open('log.txt', 'a') as f:
     f.write(f'Paper Trader ran at {datetime.now()}.\n')
