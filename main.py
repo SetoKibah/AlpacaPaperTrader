@@ -15,14 +15,10 @@ BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 take_profit = 0.05
 stop_loss = -0.05
 
-
+# Initialize clients
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
 account = trading_client.get_account()
-
-#for property_name, value in account.__dict__.items():
-#    print(f"\"{property_name}\": {value}")
-#sleep(300)
 
 
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL",
@@ -73,6 +69,7 @@ def create_buy_order(symbol, quantity):
 
 
 def main():
+    
     for symbol in symbols:
 
         # Update account information
@@ -224,23 +221,47 @@ def main():
             
             else:
                 print('No Action...')
-            print('**************************************\n')
+        else:
+            print('Not enough data points...')
+        print('**************************************\n')
 
-
-# Run the main function every 10 minutes
+# Run the main function every 10 minutes until 2:30pm local time
 while True:
+
+    # Get starting portfolio value and time
+    account = trading_client.get_account()
+    start_portfolio_value = float(account.__dict__['portfolio_value'])
+    start_time = datetime.now()
+
+    # Run main function
     main()
-    # If outside of 730am-2:30pm local time, exit the program
-    if datetime.now().hour < 7 or datetime.now().hour > 14:
+
+    # If outside of 8am-2pm local time, exit the program
+    if datetime.now().hour < 9 or datetime.now().hour > 14:
         # Save frozen symbols to file
         with open('frozen_symbols.txt', 'w') as f:
             for key, value in frozen_symbols.items():
                 f.write(f'{key}:{value}\n')
-
         break
+    # Otherwise, sleep for 10 minutes
     else:
+        print(f'Run started at {start_time} and ended at {datetime.now()}')
         print('Sleeping for 10 minutes...')
         sleep(600)
         
 with open('log.txt', 'a') as f:
-    f.write(f'Paper Trader ran at {datetime.now()}.\n')
+    # Log ending portfolio value
+    account = trading_client.get_account()
+    end_portfolio_value = float(account.__dict__['portfolio_value'])
+
+    # Log date and time
+    f.write(f'Run started at {start_time} and ended at {datetime.now()}\n')
+    
+    # Log start and end portfolio values
+    f.write(f'Starting Portfolio Value: {start_portfolio_value}\n')
+    f.write(f'Ending Portfolio Value: {end_portfolio_value}\n')
+
+    # Log profit, both dollar amount and percentage
+    f.write(f'Profit: ${round((end_portfolio_value - start_portfolio_value), 2)}\n')
+    f.write(f'Profit Percentage: {round(((end_portfolio_value - start_portfolio_value) / start_portfolio_value), 3)}%\n')
+    f.write('**************************************\n')
