@@ -4,6 +4,7 @@ from alpaca.trading.client import TradingClient
 from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 from alpaca.trading.requests import OrderRequest
 from datetime import datetime, timedelta
+import sqlite3
 from time import sleep
 
 
@@ -21,6 +22,16 @@ trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
 account = trading_client.get_account()
 
 
+# Connect to database and create table if it doesn't exist
+conn = sqlite3.connect('frozen_symbols.db')
+c = conn.cursor()
+c.execute('CREATE TABLE IF NOT EXISTS frozen_symbols (symbol TEXT PRIMARY KEY, time TEXT)')
+conn.commit()
+conn.close()
+
+
+
+# List of symbols to trade
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL",
            "KR", "BAC","SIFY", "FPAY", "CAN", "GSAT", "LUMN", "API", "IHRT", "MVIS", "VMEO", "KODK",
            "UIS", "YEXT", "PTON", "T", "NIO", "TSLA", "AMZN", "MSFT", "META", "GOOG", "GOOGL", "CLNN",
@@ -28,18 +39,40 @@ symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO"
            "BRDG", "HCAT", "SNFCA", "RXRX", "DOMO", "CLSK", "TRAK", "NATR", "NUS", "MYGN", "VREX", "BYON",
            "PRG", "FC", "ZION", "SKYW", "USNA", "HQY", "MMSI", "UTMD", "IIPR", "EXR"]
 
-frozen_symbols = {}
-# Load frozen symbols from file, if it exists
-try:
-    with open('frozen_symbols.txt', 'r') as f:
-        for line in f:
-            symbol, time = line.split(':')
-            time = time.replace('\n', '')
-            frozen_symbols[symbol] = datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
-except:
-    print('No frozen symbols file found.')
+# Function to add a symbol to the frozen symbols database
+def freeze_symbol(symbol, time):
+    # Connect to database
+    conn = sqlite3.connect('frozen_symbols.db')
+    c = conn.cursor()
 
+    # Add the frozen symbols to the database
+    c.execute('INSERT OR REPLACE INTO frozen_symbols VALUES (?, ?)', (symbol, time.strftime('%Y-%m-%d %H:%M:%S.%f')))
 
+    # Commit changes and close connection
+    conn.commit()
+    conn.close()
+
+# Function to check if a symbol is frozen
+def is_symbol_frozen(symbol):
+    # Connect to database
+    conn = sqlite3.connect('frozen_symbols.db')
+    c = conn.cursor()
+
+    # Query the database for the symbol
+    c.execute('SELECT * FROM frozen_symbols WHERE symbol=?', (symbol,))
+    
+    # If the symbol is in the database, return the time
+    result = c.fetchone()
+    # If symbol is not in the database, return False
+    if result is None:
+        result = False
+    
+    # Close connection
+    conn.close()
+
+    return result
+
+# Function to calculate the moving average
 def moving_average(lst, window_size):
     moving_averages = []
     window_sum = sum(lst[:window_size])
@@ -51,6 +84,7 @@ def moving_average(lst, window_size):
 
     return moving_averages
 
+# Function to calculate the quantity of shares to buy
 def calculate_quantity(current_buying_power, open_price):
     quantity = int(current_buying_power / open_price)
     if quantity > 5:
@@ -58,6 +92,7 @@ def calculate_quantity(current_buying_power, open_price):
         quantity = 5
     return quantity
 
+# Function to create a buy order request
 def create_buy_order(symbol, quantity):
     return OrderRequest(
         symbol=symbol,
@@ -71,6 +106,23 @@ def create_buy_order(symbol, quantity):
 def main():
     
     for symbol in symbols:
+
+        # Check if symbol is frozen and when it was frozen
+        if is_symbol_frozen(symbol):
+            frozen_time = is_symbol_frozen(symbol)
+            # Check if symbol has been frozen for more than 5 days
+            if datetime.now() - datetime.strptime(frozen_time[1], '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=5):                
+                print(f'{symbol} has been frozen for more than 5 days, removing from frozen list.')
+                # Remove symbol from frozen database
+                conn = sqlite3.connect('frozen_symbols.db')
+                c = conn.cursor()
+                c.execute('DELETE FROM frozen_symbols WHERE symbol=?', (symbol,))
+                conn.commit()
+                conn.close()
+            
+            else:
+                print(f'{symbol} is frozen, skipping...')
+                continue
 
         # Update account information
         account = trading_client.get_account()
@@ -143,7 +195,7 @@ def main():
                 trading_client.submit_order(order)
 
                 # Add symbol and time to frozen symbols
-                frozen_symbols[symbol] = datetime.now()
+                freeze_symbol(symbol, datetime.now())
 
                 print(f"Stop Loss detected for {symbol}. Selling {position.qty} shares.")
             
@@ -163,20 +215,12 @@ def main():
                 trading_client.submit_order(order)
                 print(f"Take Profit detected for {symbol}. Selling {position.qty} shares.")
 
+                # Add symbol and time to frozen symbols
+                freeze_symbol(symbol, datetime.now())
+
             elif short_moving_average > long_moving_average and not position:
                 # Golden Cross - Buy Signal
                 print('Buy Signal...')
-
-                # Check if symbol is frozen and when it was frozen
-                if symbol in frozen_symbols:
-                    frozen_time = frozen_symbols[symbol]
-                    # Check if symbol has been frozen for more than 5 days
-                    if datetime.now() - frozen_time > timedelta(days=5):                
-                        # Remove symbol from frozen symbols
-                        frozen_symbols.pop(symbol)
-                    else:
-                        print(f'{symbol} is frozen, skipping...')
-                        continue
 
                 # Get current buying power
                 current_buying_power = float(account.__dict__['buying_power'])
@@ -223,45 +267,55 @@ def main():
                 print('No Action...')
         else:
             print('Not enough data points...')
+        
+
+        # connect to database
+        conn = sqlite3.connect('frozen_symbols.db')
+        c = conn.cursor()
+
+        # Create table if it doesn't exist
+        c.execute('CREATE TABLE IF NOT EXISTS frozen_symbols (symbol TEXT PRIMARY KEY, time TEXT)')
+
+        # Commit changes and close connection
+        conn.commit()
+        conn.close()
         print('**************************************\n')
 
-# Run the main function every 10 minutes until 2:30pm local time
-while True:
 
-    # Get starting portfolio value and time
+if __name__ == '__main__':
+
+     # Get starting portfolio value and time
     account = trading_client.get_account()
     start_portfolio_value = float(account.__dict__['portfolio_value'])
     start_time = datetime.now()
 
-    # Run main function
-    main()
-
-    # If outside of 8am-2pm local time, exit the program
-    if datetime.now().hour < 9 or datetime.now().hour > 14:
-        # Save frozen symbols to file
-        with open('frozen_symbols.txt', 'w') as f:
-            for key, value in frozen_symbols.items():
-                f.write(f'{key}:{value}\n')
-        break
-    # Otherwise, sleep for 10 minutes
-    else:
-        print(f'Run started at {start_time} and ended at {datetime.now()}')
-        print('Sleeping for 10 minutes...')
-        sleep(600)
+    # Run the main function every 10 minutes until 2:30pm local time
+    while True:
         
-with open('log.txt', 'a') as f:
-    # Log ending portfolio value
-    account = trading_client.get_account()
-    end_portfolio_value = float(account.__dict__['portfolio_value'])
+        # If outside of 8am-2pm local time, exit the program
+        if datetime.now().hour < 9 or datetime.now().hour > 14:
+            break
+        # Otherwise, sleep for 10 minutes
+        else:
+            # Run main function
+            main()
+            # Sleep
+            print('Sleeping for 10 minutes...')
+            sleep(600)
+            
+    with open('log.txt', 'a') as f:
+        # Log ending portfolio value
+        account = trading_client.get_account()
+        end_portfolio_value = float(account.__dict__['portfolio_value'])
 
-    # Log date and time
-    f.write(f'Run started at {start_time} and ended at {datetime.now()}\n')
-    
-    # Log start and end portfolio values
-    f.write(f'Starting Portfolio Value: {start_portfolio_value}\n')
-    f.write(f'Ending Portfolio Value: {end_portfolio_value}\n')
+        # Log date and time
+        f.write(f'Run started at {start_time} and ended at {datetime.now()}\n')
+        
+        # Log start and end portfolio values
+        f.write(f'Starting Portfolio Value: {start_portfolio_value}\n')
+        f.write(f'Ending Portfolio Value: {end_portfolio_value}\n')
 
-    # Log profit, both dollar amount and percentage
-    f.write(f'Profit: ${round((end_portfolio_value - start_portfolio_value), 2)}\n')
-    f.write(f'Profit Percentage: {round(((end_portfolio_value - start_portfolio_value) / start_portfolio_value), 3)}%\n')
-    f.write('**************************************\n')
+        # Log profit, both dollar amount and percentage
+        f.write(f'Profit: ${round((end_portfolio_value - start_portfolio_value), 2)}\n')
+        f.write(f'Profit Percentage: {round(((end_portfolio_value - start_portfolio_value) / start_portfolio_value), 3)}%\n')
+        f.write('**************************************\n')

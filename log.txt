@@ -1,6 +1,6 @@
-Run started at 2023-12-18 15:01:29.256713 and ended at 2023-12-18 15:01:52.104327
-Starting Portfolio Value: 1027.65
-Ending Portfolio Value: 1027.7
-Profit: 0.049999999999954525
-Profit Percentage: 4.8654697611010095e-05
+Run started at 2023-12-21 10:58:57.337737 and ended at 2023-12-21 15:09:15.978897
+Starting Portfolio Value: 1033.72
+Ending Portfolio Value: 1040.84
+Profit: $7.12
+Profit Percentage: 0.007%
 **************************************
