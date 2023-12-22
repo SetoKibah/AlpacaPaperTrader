@@ -13,7 +13,7 @@ API_SECRET = '09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71'
 BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
 
 # Constants
-take_profit = 0.05
+take_profit = 0.08
 stop_loss = -0.05
 
 # Initialize clients
