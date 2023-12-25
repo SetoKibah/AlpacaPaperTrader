@@ -6,11 +6,33 @@ from alpaca.trading.requests import OrderRequest
 from datetime import datetime, timedelta
 import sqlite3
 from time import sleep
+from dotenv import load_dotenv
+import os
+
+# For deploying to a Debian Linux server, do the following:
+# 1. Install Latest Python
+# 2. Install pip
+# 3. Install sqlite3
+# 4. Install git
+# 5. Clone the repository
+# 6. Install the required packages
+# 7. Create a .env file with the following contents:
+    # API_KEY=PKSOVG2YEBLVPKNA8K5U
+    # API_SECRET=09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71
+    # BASE_URL=https://paper-api.alpaca.markets
+# 8. Add the following code to config.py:
+
+# For setting the cron job to start the program at 8am local time, do the following:
+# 1. Run "crontab -e"
+# 2. Add the following line to the bottom of the file:
+# 0 8 * * 1-5 python3 /path/to/main.py
 
 
-API_KEY = 'PKSOVG2YEBLVPKNA8K5U'
-API_SECRET = '09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71'
-BASE_URL = 'https://paper-api.alpaca.markets'  # use this for paper trading
+# Import credentials from .env file
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
+API_SECRET = os.getenv('API_SECRET')
+BASE_URL = os.getenv('BASE_URL')
 
 # Constants
 take_profit = 0.08
@@ -294,13 +316,27 @@ if __name__ == '__main__':
         
         # If outside of 8am-2pm local time, exit the program
         if datetime.now().hour < 9 or datetime.now().hour > 14:
+            print('Outside of trading hours, exiting program...')
             break
+
+        # If the day is Saturday or Sunday, exit the program
+        if datetime.now().weekday() == 5 or datetime.now().weekday() == 6:
+            print('Today is a weekend, exiting program...')
+            break
+
+        # List of all holidays nyse is closed in 2024
+        holidays = ['2024-01-01', '2024-01-15', '2024-02-19', '2024-03-29', '2024-03-30', '2024-05-27', '2024-07-04', '2024-09-02', '2024-11-28', '2024-12-25']
+        # If today is a holiday, exit the program
+        if datetime.now().strftime('%Y-%m-%d') in holidays:
+            print('Today is a holiday, exiting program...')
+            break
+
         # Otherwise, sleep for 10 minutes
         else:
             # Run main function
             main()
-            # Sleep
-            print('Sleeping for 10 minutes...')
+            # Sleep, and show time until next run
+            print(f'Sleeping until {datetime.now() + timedelta(minutes=10)}')
             sleep(600)
             
     with open('log.txt', 'a') as f:
