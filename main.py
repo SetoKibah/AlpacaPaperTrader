@@ -43,15 +43,12 @@ client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
 account = trading_client.get_account()
 
-
 # Connect to database and create table if it doesn't exist
 conn = sqlite3.connect('frozen_symbols.db')
 c = conn.cursor()
 c.execute('CREATE TABLE IF NOT EXISTS frozen_symbols (symbol TEXT PRIMARY KEY, time TEXT)')
 conn.commit()
 conn.close()
-
-
 
 # List of symbols to trade
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL",
@@ -124,7 +121,7 @@ def create_buy_order(symbol, quantity):
         time_in_force='gtc'
     )
 
-
+# Main function
 def main():
     
     for symbol in symbols:
@@ -132,8 +129,8 @@ def main():
         # Check if symbol is frozen and when it was frozen
         if is_symbol_frozen(symbol):
             frozen_time = is_symbol_frozen(symbol)
-            # Check if symbol has been frozen for more than 5 days
-            if datetime.now() - datetime.strptime(frozen_time[1], '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=5):                
+            # Check if symbol has been frozen for more than 1 day
+            if datetime.now() - datetime.strptime(frozen_time[1], '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=1):                
                 print(f'{symbol} has been frozen for more than 5 days, removing from frozen list.')
                 # Remove symbol from frozen database
                 conn = sqlite3.connect('frozen_symbols.db')
@@ -186,7 +183,6 @@ def main():
             else:
                 print('No Signal')
             
-
             try:
                 print(f'Getting {symbol} position...')
                 position = trading_client.get_open_position(symbol)
@@ -290,7 +286,6 @@ def main():
         else:
             print('Not enough data points...')
         
-
         # connect to database
         conn = sqlite3.connect('frozen_symbols.db')
         c = conn.cursor()
@@ -303,7 +298,7 @@ def main():
         conn.close()
         print('**************************************\n')
 
-
+# Run main function with additional checks if this file is run directly
 if __name__ == '__main__':
 
      # Get starting portfolio value and time
