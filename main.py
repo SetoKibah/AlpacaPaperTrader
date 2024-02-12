@@ -35,7 +35,7 @@ API_SECRET = os.getenv('API_SECRET')
 BASE_URL = os.getenv('BASE_URL')
 
 # Constants
-take_profit = 0.08
+take_profit = 0.1
 stop_loss = -0.05
 
 # Initialize clients
@@ -129,8 +129,8 @@ def main():
         # Check if symbol is frozen and when it was frozen
         if is_symbol_frozen(symbol):
             frozen_time = is_symbol_frozen(symbol)
-            # Check if symbol has been frozen for more than 1 day
-            if datetime.now() - datetime.strptime(frozen_time[1], '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=1):                
+            # Check if symbol has been frozen for more than 5 days
+            if datetime.now() - datetime.strptime(frozen_time[1], '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=5):                
                 print(f'{symbol} has been frozen for more than 5 days, removing from frozen list.')
                 # Remove symbol from frozen database
                 conn = sqlite3.connect('frozen_symbols.db')
@@ -306,11 +306,11 @@ if __name__ == '__main__':
     start_portfolio_value = float(account.__dict__['portfolio_value'])
     start_time = datetime.now()
 
-    # Run the main function every 10 minutes until 2:30pm local time
+    # Run the main function every 10 minutes until 2:00 pm local time
     while True:
         
-        # If outside of 8am-2pm local time, exit the program
-        if datetime.now().hour < 9 or datetime.now().hour > 14:
+        # If outside of 10am-2pm local time, exit the program
+        if datetime.now().hour < 10 or datetime.now().hour > 13:
             print('Outside of trading hours, exiting program...')
             break
 
