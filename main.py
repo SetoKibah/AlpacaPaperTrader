@@ -9,25 +9,6 @@ from time import sleep
 from dotenv import load_dotenv
 import os
 
-# For deploying to a Debian Linux server, do the following:
-# 1. Install Latest Python
-# 2. Install pip
-# 3. Install sqlite3
-# 4. Install git
-# 5. Clone the repository
-# 6. Install the required packages
-# 7. Create a .env file with the following contents:
-    # API_KEY=PKSOVG2YEBLVPKNA8K5U
-    # API_SECRET=09rRznBcGib14PmuAet5ctzhjA6F9vZzCjqEQC71
-    # BASE_URL=https://paper-api.alpaca.markets
-# 8. Add the following code to config.py:
-
-# For setting the cron job to start the program at 8am local time, do the following:
-# 1. Run "crontab -e"
-# 2. Add the following line to the bottom of the file:
-# 0 8 * * 1-5 python3 /path/to/main.py
-
-
 # Import credentials from .env file
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -36,7 +17,9 @@ BASE_URL = os.getenv('BASE_URL')
 
 # Constants
 take_profit = 0.1
-stop_loss = -0.05
+profit_stop_loss = 0.05
+stop_loss = -0.06
+
 
 # Initialize clients
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
