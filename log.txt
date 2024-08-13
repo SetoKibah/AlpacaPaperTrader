@@ -136,3 +136,201 @@ Ending Portfolio Value: 1038.31
 Profit: $0.76
 Profit Percentage: 0.001%
 **************************************
+Run started at 2024-02-12 11:06:00.617414 and ended at 2024-02-12 15:04:50.671304
+Starting Portfolio Value: 1055.26
+Ending Portfolio Value: 1053.17
+Profit: $-2.09
+Profit Percentage: -0.002%
+**************************************
+Run started at 2024-02-13 10:38:00.704509 and ended at 2024-02-13 14:05:34.540625
+Starting Portfolio Value: 1038.35
+Ending Portfolio Value: 1032.11
+Profit: $-6.24
+Profit Percentage: -0.006%
+**************************************
+Run started at 2024-02-14 12:06:33.781583 and ended at 2024-02-14 14:01:06.864813
+Starting Portfolio Value: 1049.36
+Ending Portfolio Value: 1055.48
+Profit: $6.12
+Profit Percentage: 0.006%
+**************************************
+Run started at 2024-02-15 09:58:36.611362 and ended at 2024-02-15 09:58:36.714052
+Starting Portfolio Value: 1058.56
+Ending Portfolio Value: 1058.56
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-02-15 11:13:46.245324 and ended at 2024-02-15 14:09:57.444825
+Starting Portfolio Value: 1060.96
+Ending Portfolio Value: 1067.14
+Profit: $6.18
+Profit Percentage: 0.006%
+**************************************
+Run started at 2024-02-16 12:21:48.194521 and ended at 2024-02-16 14:05:38.474362
+Starting Portfolio Value: 1067.08
+Ending Portfolio Value: 1059.35
+Profit: $-7.73
+Profit Percentage: -0.007%
+**************************************
+Run started at 2024-02-20 10:30:12.109296 and ended at 2024-02-20 14:08:21.845892
+Starting Portfolio Value: 1048.84
+Ending Portfolio Value: 1053.97
+Profit: $5.13
+Profit Percentage: 0.005%
+**************************************
+Run started at 2024-02-26 10:49:05.766968 and ended at 2024-02-26 14:06:06.736445
+Starting Portfolio Value: 1060.4
+Ending Portfolio Value: 1058.45
+Profit: $-1.95
+Profit Percentage: -0.002%
+**************************************
+Run started at 2024-02-28 10:34:28.329607 and ended at 2024-02-28 14:01:55.604019
+Starting Portfolio Value: 1072.71
+Ending Portfolio Value: 1070.91
+Profit: $-1.8
+Profit Percentage: -0.002%
+**************************************
+Run started at 2024-02-29 11:23:40.231437 and ended at 2024-02-29 14:01:03.796919
+Starting Portfolio Value: 1079.89
+Ending Portfolio Value: 1085.88
+Profit: $5.99
+Profit Percentage: 0.006%
+**************************************
+Run started at 2024-03-04 10:13:44.334817 and ended at 2024-03-04 14:02:20.148414
+Starting Portfolio Value: 1099.83
+Ending Portfolio Value: 1099.94
+Profit: $0.11
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-05 11:44:26.386658 and ended at 2024-03-05 14:10:09.185706
+Starting Portfolio Value: 1089.33
+Ending Portfolio Value: 1082.55
+Profit: $-6.78
+Profit Percentage: -0.006%
+**************************************
+Run started at 2024-03-06 10:21:30.528660 and ended at 2024-03-06 14:09:34.078551
+Starting Portfolio Value: 1086.57
+Ending Portfolio Value: 1086.91
+Profit: $0.34
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-07 07:48:47.784631 and ended at 2024-03-07 07:48:47.900144
+Starting Portfolio Value: 1099.95
+Ending Portfolio Value: 1099.95
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-07 11:54:44.340226 and ended at 2024-03-07 14:09:19.573612
+Starting Portfolio Value: 1099.21
+Ending Portfolio Value: 1102.22
+Profit: $3.01
+Profit Percentage: 0.003%
+**************************************
+Run started at 2024-03-08 09:54:22.742343 and ended at 2024-03-08 09:54:22.906997
+Starting Portfolio Value: 1115.55
+Ending Portfolio Value: 1115.56
+Profit: $0.01
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-08 11:55:39.183677 and ended at 2024-03-08 14:00:03.484019
+Starting Portfolio Value: 1111.15
+Ending Portfolio Value: 1111.96
+Profit: $0.81
+Profit Percentage: 0.001%
+**************************************
+Run started at 2024-03-11 11:28:52.993380 and ended at 2024-03-11 14:04:35.493414
+Starting Portfolio Value: 1108.95
+Ending Portfolio Value: 1105.42
+Profit: $-3.53
+Profit Percentage: -0.003%
+**************************************
+Run started at 2024-03-12 10:45:23.185570 and ended at 2024-03-12 14:03:16.194721
+Starting Portfolio Value: 1103.05
+Ending Portfolio Value: 1108.08
+Profit: $5.03
+Profit Percentage: 0.005%
+**************************************
+Run started at 2024-03-13 02:08:53.517683 and ended at 2024-03-13 02:08:53.634439
+Starting Portfolio Value: 1110.41
+Ending Portfolio Value: 1110.41
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-13 08:11:02.541147 and ended at 2024-03-13 08:11:02.649217
+Starting Portfolio Value: 1113.27
+Ending Portfolio Value: 1113.28
+Profit: $0.01
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-03-13 11:11:44.119202 and ended at 2024-03-13 14:09:41.541505
+Starting Portfolio Value: 1114.43
+Ending Portfolio Value: 1109.71
+Profit: $-4.72
+Profit Percentage: -0.004%
+**************************************
+Run started at 2024-03-14 10:31:02.677703 and ended at 2024-03-14 14:09:08.376620
+Starting Portfolio Value: 1090.31
+Ending Portfolio Value: 1091.25
+Profit: $0.94
+Profit Percentage: 0.001%
+**************************************
+Run started at 2024-03-15 10:11:05.323578 and ended at 2024-03-15 14:08:06.485878
+Starting Portfolio Value: 1087.48
+Ending Portfolio Value: 1082.6
+Profit: $-4.88
+Profit Percentage: -0.004%
+**************************************
+Run started at 2024-03-18 12:24:03.859354 and ended at 2024-03-18 14:07:34.612244
+Starting Portfolio Value: 1089.69
+Ending Portfolio Value: 1085.11
+Profit: $-4.58
+Profit Percentage: -0.004%
+**************************************
+Run started at 2024-03-19 11:00:13.977842 and ended at 2024-03-19 14:07:16.167982
+Starting Portfolio Value: 1091.85
+Ending Portfolio Value: 1091.9
+Profit: $0.05
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-06-06 16:58:39.633625 and ended at 2024-06-06 16:58:39.738338
+Starting Portfolio Value: 1088.7
+Ending Portfolio Value: 1088.7
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-06-07 11:13:21.228709 and ended at 2024-06-08 10:23:55.873310
+Starting Portfolio Value: 1087.08
+Ending Portfolio Value: 1077.15
+Profit: $-9.93
+Profit Percentage: -0.009%
+**************************************
+Run started at 2024-06-10 09:00:38.229160 and ended at 2024-06-10 09:00:38.333883
+Starting Portfolio Value: 1075.59
+Ending Portfolio Value: 1075.59
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-06-10 11:56:13.070939 and ended at 2024-06-10 14:00:27.217214
+Starting Portfolio Value: 1080.0
+Ending Portfolio Value: 1080.32
+Profit: $0.32
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-06-11 10:16:17.204268 and ended at 2024-06-11 14:03:44.366910
+Starting Portfolio Value: 1073.9
+Ending Portfolio Value: 1080.18
+Profit: $6.28
+Profit Percentage: 0.006%
+**************************************
+Run started at 2024-08-13 00:57:52.257530 and ended at 2024-08-13 00:57:52.360255
+Starting Portfolio Value: 1085.87
+Ending Portfolio Value: 1085.87
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************
+Run started at 2024-08-13 14:35:33.764989 and ended at 2024-08-13 14:35:33.873698
+Starting Portfolio Value: 1093.43
+Ending Portfolio Value: 1093.43
+Profit: $0.0
+Profit Percentage: 0.0%
+**************************************

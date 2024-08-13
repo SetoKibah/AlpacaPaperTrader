@@ -20,7 +20,6 @@ take_profit = 0.1
 profit_stop_loss = 0.05
 stop_loss = -0.06
 
-
 # Initialize clients
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
 trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
@@ -37,42 +36,50 @@ conn.close()
 symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO", "SBUX", "AAPL",
            "KR", "BAC","SIFY", "FPAY", "CAN", "GSAT", "LUMN", "API", "IHRT", "MVIS", "VMEO", "KODK",
            "UIS", "YEXT", "PTON", "T", "NIO", "TSLA", "AMZN", "MSFT", "META", "GOOG", "GOOGL", "CLNN",
-           "OMQS", "SDPI", "CLRO", "PRPL", "CODX", "PFIE", "COOK", "SPWH", "SERA", "CLAR", "LFVN", "CRCT",
+           "OMQS", "CLRO", "PRPL", "CODX", "PFIE", "COOK", "SPWH", "SERA", "CLAR", "LFVN", "CRCT",
            "BRDG", "HCAT", "SNFCA", "RXRX", "DOMO", "CLSK", "TRAK", "NATR", "NUS", "MYGN", "VREX", "BYON",
            "PRG", "FC", "ZION", "SKYW", "USNA", "HQY", "MMSI", "UTMD", "IIPR", "EXR"]
 
 # Function to add a symbol to the frozen symbols database
 def freeze_symbol(symbol, time):
-    # Connect to database
-    conn = sqlite3.connect('frozen_symbols.db')
-    c = conn.cursor()
+    try:
+        # Connect to database
+        conn = sqlite3.connect('frozen_symbols.db')
+        c = conn.cursor()
 
-    # Add the frozen symbols to the database
-    c.execute('INSERT OR REPLACE INTO frozen_symbols VALUES (?, ?)', (symbol, time.strftime('%Y-%m-%d %H:%M:%S.%f')))
+        # Add the frozen symbols to the database
+        c.execute('INSERT OR REPLACE INTO frozen_symbols VALUES (?, ?)', (symbol, time.strftime('%Y-%m-%d %H:%M:%S.%f')))
 
-    # Commit changes and close connection
-    conn.commit()
-    conn.close()
+        # Commit changes and close connection
+        conn.commit()
+        conn.close()
+        print(f'Successfully added {symbol} to the frozen symbols database.')
+    except Exception as e:
+        print(f'Error occurred while adding {symbol} to the frozen symbols database: {str(e)}')
 
 # Function to check if a symbol is frozen
 def is_symbol_frozen(symbol):
-    # Connect to database
-    conn = sqlite3.connect('frozen_symbols.db')
-    c = conn.cursor()
+    try:
+        # Connect to database
+        conn = sqlite3.connect('frozen_symbols.db')
+        c = conn.cursor()
 
-    # Query the database for the symbol
-    c.execute('SELECT * FROM frozen_symbols WHERE symbol=?', (symbol,))
-    
-    # If the symbol is in the database, return the time
-    result = c.fetchone()
-    # If symbol is not in the database, return False
-    if result is None:
-        result = False
-    
-    # Close connection
-    conn.close()
+        # Query the database for the symbol
+        c.execute('SELECT * FROM frozen_symbols WHERE symbol=?', (symbol,))
 
-    return result
+        # If the symbol is in the database, return the time
+        result = c.fetchone()
+        # If symbol is not in the database, return False
+        if result is None:
+            result = False
+
+        # Close connection
+        conn.close()
+
+        return result
+    except Exception as e:
+        print(f'Error occurred while checking if symbol is frozen: {str(e)}')
+        return False
 
 # Function to calculate the moving average
 def moving_average(lst, window_size):
