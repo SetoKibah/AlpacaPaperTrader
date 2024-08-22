@@ -8,6 +8,7 @@ import sqlite3
 from time import sleep
 from dotenv import load_dotenv
 import os
+import csv
 
 # Import credentials from .env file
 load_dotenv()
@@ -19,6 +20,8 @@ BASE_URL = os.getenv('BASE_URL')
 take_profit = 0.1
 profit_stop_loss = 0.05
 stop_loss = -0.06
+log_file = 'log.csv'
+file_exists = os.path.isfile(log_file)
 
 # Initialize clients
 client = StockHistoricalDataClient(API_KEY,API_SECRET)
@@ -324,19 +327,21 @@ if __name__ == '__main__':
             print(f'Sleeping until {datetime.now() + timedelta(minutes=10)}')
             sleep(600)
             
-    with open('log.txt', 'a') as f:
-        # Log ending portfolio value
+    with open(log_file, 'a', newline='') as file:
+        writer = csv.writer(file)
+
+        # If the file does not exist, write the header
+        if not file_exists:
+            writer.writerow(['Start Time', 'End Time', 'Starting Portfolio Value', 'Ending Portfolio Value', 'Profit','Profit Percentage'])
+
+        # Log ending portfolio value and time
         account = trading_client.get_account()
         end_portfolio_value = float(account.__dict__['portfolio_value'])
+        end_time = datetime.now()
 
-        # Log date and time
-        f.write(f'Run started at {start_time} and ended at {datetime.now()}\n')
-        
-        # Log start and end portfolio values
-        f.write(f'Starting Portfolio Value: {start_portfolio_value}\n')
-        f.write(f'Ending Portfolio Value: {end_portfolio_value}\n')
+        # Calculate profit and percentage profit
+        profit = round((end_portfolio_value - start_portfolio_value), 2)
+        profit_percentage = round(((end_portfolio_value - start_portfolio_value) / start_portfolio_value) * 100, 2)
 
-        # Log profit, both dollar amount and percentage
-        f.write(f'Profit: ${round((end_portfolio_value - start_portfolio_value), 2)}\n')
-        f.write(f'Profit Percentage: {round(((end_portfolio_value - start_portfolio_value) / start_portfolio_value), 3)}%\n')
-        f.write('**************************************\n')
+        # Write the log data as new row
+        writer.writerow([start_time, end_time, start_portfolio_value, end_portfolio_value, profit, profit_percentage])
