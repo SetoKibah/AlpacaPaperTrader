@@ -1,6 +1,4 @@
-SetoKibah: @workspace Write a readme describing the project and what the code does in its current state
-
-Workspace: # Stock Trading Bot
+# Stock Trading Bot
 
 This project is a stock trading bot that interacts with the Alpaca API to automate stock trading based on predefined strategies. The bot is designed to run continuously, checking for trading opportunities and logging its activities.
 
