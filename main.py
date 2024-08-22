@@ -5,6 +5,7 @@ from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 from alpaca.trading.requests import OrderRequest
 from datetime import datetime, timedelta
 import sqlite3
+import pandas as pd
 from time import sleep
 from dotenv import load_dotenv
 import os
