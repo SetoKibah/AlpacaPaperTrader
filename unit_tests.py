@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 from main import freeze_symbol, is_symbol_frozen, moving_average, calculate_quantity, create_buy_order
+from sentiment_analysis import calculate_average_sentiment
 
 class TestTradingBot(unittest.TestCase):
 
@@ -43,6 +44,20 @@ class TestTradingBot(unittest.TestCase):
         self.assertEqual(result.side, 'buy')
         self.assertEqual(result.type, 'market')
         self.assertEqual(result.time_in_force, 'gtc')
+
+class TestSentimentAnalysis(unittest.TestCase):
+
+    def test_calculate_average_sentiment_valid(self):
+        # Mock valid API response and test sentiment calculation
+        pass
+
+    def test_calculate_average_sentiment_no_news(self):
+        # Mock API response with no news and test error handling
+        pass
+
+    def test_calculate_average_sentiment_invalid_api_keys(self):
+        # Test behavior when API keys are missing or invalid
+        pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,6 +4,7 @@ from alpaca.trading.client import TradingClient
 from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 from alpaca.trading.requests import OrderRequest
 from datetime import datetime, timedelta
+import sentiment_analysis
 import sqlite3
 import pandas as pd
 from time import sleep
@@ -12,10 +13,16 @@ import os
 import csv
 
 # Import credentials from .env file
+print("Loading environment variables...")
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 BASE_URL = os.getenv('BASE_URL')
+
+# Debug output to verify environment variables
+print("API_KEY:", API_KEY)
+print("API_SECRET:", API_SECRET)
+print("BASE_URL:", BASE_URL)
 
 # Constants
 take_profit = 0.1
@@ -24,10 +31,18 @@ stop_loss = -0.06
 log_file = 'log.csv'
 file_exists = os.path.isfile(log_file)
 
-# Initialize clients
-client = StockHistoricalDataClient(API_KEY,API_SECRET)
-trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
-account = trading_client.get_account()
+print("Initializing StockHistoricalDataClient...")
+try:
+    # Initialize clients
+    client = StockHistoricalDataClient(API_KEY, API_SECRET)
+    print("StockHistoricalDataClient initialized successfully!")
+    trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
+    print("TradingClient initialized successfully!")
+    account = trading_client.get_account()
+    print("Account retrieved successfully!")
+except Exception as e:
+    print(f"Error initializing clients: {e}")
+    raise
 
 # Connect to database and create table if it doesn't exist
 conn = sqlite3.connect('frozen_symbols.db')
@@ -44,6 +59,8 @@ symbols = ["F", "GE", "NOK", "MRO", "INST", "IVR", "PLTR", "KEY", "SPOT", "GPRO"
            "BRDG", "HCAT", "SNFCA", "RXRX", "DOMO", "CLSK", "TRAK", "NATR", "NUS", "MYGN", "VREX", "BYON",
            "PRG", "FC", "ZION", "SKYW", "USNA", "HQY", "MMSI", "UTMD", "IIPR", "EXR"]
 
+# Initialize a default sentiment value - will be calculated per symbol in the main function
+default_sentiment = 0.0
 # Function to add a symbol to the frozen symbols database
 def freeze_symbol(symbol, time):
     try:
@@ -96,6 +113,52 @@ def moving_average(lst, window_size):
         moving_averages.append(window_sum / window_size)
 
     return moving_averages
+
+# Function to calculate Average True Range (ATR) for dynamic stop losses
+def calculate_atr(bars, symbol, atr_period=14):
+    if len(bars[symbol]) <= atr_period:
+        # Not enough data to calculate ATR, return a default value
+        return None
+    
+    # Calculate True Range
+    tr_values = []
+    for i in range(1, len(bars[symbol])):
+        high = bars[symbol][i].high
+        low = bars[symbol][i].low
+        prev_close = bars[symbol][i-1].close
+        
+        # True Range is the greatest of:
+        # 1. Current High - Current Low
+        # 2. |Current High - Previous Close|
+        # 3. |Current Low - Previous Close|
+        high_low = high - low
+        high_close = abs(high - prev_close)
+        low_close = abs(low - prev_close)
+        
+        tr = max(high_low, high_close, low_close)
+        tr_values.append(tr)
+    
+    # Use only the last atr_period values
+    recent_tr = tr_values[-atr_period:]
+    
+    # Calculate ATR as the simple average of True Range values
+    atr = sum(recent_tr) / len(recent_tr)
+    return atr
+
+# Function to calculate dynamic stop loss based on ATR
+def calculate_dynamic_stop_loss(current_price, atr, multiplier=2.0):
+    if atr is None:
+        return -0.06  # Default to fixed 6% stop loss if ATR can't be calculated
+    
+    # ATR-based stop loss (e.g., 2 ATRs below current price)
+    stop_price = current_price - (atr * multiplier)
+    
+    # Convert to percentage for consistency with existing code
+    stop_loss_percent = (stop_price / current_price) - 1
+    
+    # Limit maximum stop loss to prevent excessive risk
+    max_stop_loss = -0.10  # Maximum 10% stop loss
+    return max(stop_loss_percent, max_stop_loss)
 
 # Function to calculate the quantity of shares to buy
 def calculate_quantity(current_buying_power, open_price):
@@ -151,25 +214,35 @@ def main():
             end=end_date, 
             limit=365)
         
-        bars = client.get_stock_bars(bar_request)
+        bars = client.get_stock_bars(bar_request)        # Get sentiment score with dynamic date range (past 30 days to today)
+        start_date_str = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%dT00%%3A00%%3A00Z')
+        end_date_str = datetime.now().strftime('%Y-%m-%dT23%%3A59%%3A59Z')
+        sentiment_url = f'https://data.alpaca.markets/v1beta1/news?start={start_date_str}&end={end_date_str}&sort=desc&symbols={symbol}&include_content=true&exclude_contentless=true'
+        try:
+            sentiment = sentiment_analysis.calculate_average_sentiment(sentiment_url)
+            print(f"Sentiment score for {symbol}: {sentiment}")
+        except Exception as e:
+            print(f"Error getting sentiment for {symbol}: {e}")
+            sentiment = 0.0  # Default neutral sentiment on error       
         """
         print(f"\n\n")
         print(bars[symbol][0])
         print(f"\n\n\n")
         """
-
+        
         short_window = 50
         long_window = 200
         #print(f'Confirming data point length({len(bars[symbol])}) vs long window({long_window})')
         if len(bars[symbol]) >= long_window:  # Check to ensure we have enough data points
-            #print('Data points confirmed...')
+            # print('Data points confirmed...')
             short_moving_average = moving_average([bar.open for bar in bars[symbol]], short_window)[-1]
             long_moving_average = moving_average([bar.open for bar in bars[symbol]], long_window)[-1]
             print('Moving averages calculated...')
+  
 
             # Display the signal generated by the moving averages
             print('Stock is currently trading at: $' + str(bars[symbol][-1].open))
-            # Display the resulting deatch cross or golden cross signal
+            # Display the resulting death cross or golden cross signal
             if short_moving_average > long_moving_average:
                 print('Golden Cross')
             elif short_moving_average < long_moving_average:
@@ -191,7 +264,15 @@ def main():
 
             print(f'Short Average: {short_moving_average}\nLong Average: {long_moving_average}')
             
-            if percent_return < stop_loss and position:
+            # Calculate ATR for dynamic stop loss
+            atr = calculate_atr(bars, symbol)
+            print(f'ATR for {symbol}: {atr}')
+
+            # Calculate dynamic stop loss based on ATR
+            dynamic_stop_loss = calculate_dynamic_stop_loss(bars[symbol][-1].open, atr)
+            print(f'Dynamic Stop Loss for {symbol}: {dynamic_stop_loss}%')
+
+            if percent_return < dynamic_stop_loss and position:
                 # Stop Loss - Sell Signal
                 print('Stop Loss...')
 
@@ -230,7 +311,7 @@ def main():
                 # Add symbol and time to frozen symbols
                 freeze_symbol(symbol, datetime.now())
 
-            elif short_moving_average > long_moving_average and not position:
+            elif short_moving_average > long_moving_average and not position and sentiment > 0.1:
                 # Golden Cross - Buy Signal
                 print('Buy Signal...')
 
@@ -259,7 +340,7 @@ def main():
                     print(f'Insufficient buying power, we have {current_buying_power} trying to buy {symbol} at {open_price}')
 
 
-            elif short_moving_average < long_moving_average and position:
+            elif short_moving_average < long_moving_average and position and sentiment < 0.1:
                 # Death Cross - Sell Signal
                 print('Sell Signal...')
 
@@ -302,19 +383,17 @@ if __name__ == '__main__':
 
     # Run the main function every 10 minutes until 2:00 pm local time
     while True:
-        
-        # If outside of 10am-2pm local time, exit the program
-        if datetime.now().hour < 10 or datetime.now().hour > 13:
-            print('Outside of trading hours, exiting program...')
+          # If outside of 10am-4pm local time, exit the program
+        current_hour = datetime.now().hour
+        if current_hour < 10 or current_hour >= 16:  # Trading hours 10:00 AM - 4:00 PM
+            print(f'Outside of trading hours ({current_hour}:00), exiting program...')
             break
 
         # If the day is Saturday or Sunday, exit the program
         if datetime.now().weekday() == 5 or datetime.now().weekday() == 6:
             print('Today is a weekend, exiting program...')
-            break
-
-        # List of all holidays nyse is closed in 2024
-        holidays = ['2024-01-01', '2024-01-15', '2024-02-19', '2024-03-29', '2024-03-30', '2024-05-27', '2024-07-04', '2024-09-02', '2024-11-28', '2024-12-25']
+            break        # List of all holidays nyse is closed in 2025
+        holidays = ['2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18', '2025-05-26', '2025-07-04', '2025-09-01', '2025-11-27', '2025-12-25']
         # If today is a holiday, exit the program
         if datetime.now().strftime('%Y-%m-%d') in holidays:
             print('Today is a holiday, exiting program...')
